@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/organic-e2112705-c1ba-454e-8c4b-a20c2dbb63cd/styles.css">
+  <script src="_ds/organic-e2112705-c1ba-454e-8c4b-a20c2dbb63cd/_ds_bundle.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; scroll-behavior: smooth; }
+    a { color: var(--color-accent-700); }
+    a:hover { color: var(--color-accent); }
+    .tile { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+    .tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    @media (max-width: 760px) {
+      .about-grid { grid-template-columns: 1fr !important; }
+      .tiles-grid { grid-template-columns: 1fr !important; }
+      .hero-title { font-size: 1.4rem !important; white-space: normal !important; }
+    }
+  </style>
+</helmet>
+
+<!-- Nav -->
+<nav class="nav" style="position: sticky; top: 0; z-index: 100; background: var(--color-neutral-100); box-shadow: var(--shadow-sm);">
+  <span class="nav-brand">Lauren Stainback</span>
+  <div style="display: flex; gap: 28px; align-items: center;">
+    <a href="projects/projects.dc.html" style="font-family: var(--font-body); font-weight: 600; color: var(--color-text); text-decoration: none;">Projects</a>
+    <a href="#contact" style="font-family: var(--font-body); font-weight: 600; color: var(--color-text); text-decoration: none;">Contact</a>
+  </div>
+</nav>
+
+<!-- Sunset Hero -->
+<div style="position: relative; height: 440px; overflow: hidden; background: conic-gradient(from -90deg at 50% 100%, #f6a06c 0deg 12.86deg, #b1622d 12.86deg 25.71deg, #f9f4ed 25.71deg 38.57deg, #f6a06c 38.57deg 51.43deg, #b1622d 51.43deg 64.29deg, #f9f4ed 64.29deg 77.14deg, #f6a06c 77.14deg 90deg, #b1622d 90deg 102.86deg, #f9f4ed 102.86deg 115.71deg, #f6a06c 115.71deg 128.57deg, #b1622d 128.57deg 141.43deg, #f9f4ed 141.43deg 154.29deg, #f6a06c 154.29deg 167.14deg, #b1622d 167.14deg 360deg);">
+  <!-- Sun semicircle -->
+  <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 260px; height: 130px; border-radius: 130px 130px 0 0; overflow: hidden; box-shadow: 0 0 0 5px #f5ead8;">
+    <div style="width: 100%; height: 100%; background: repeating-linear-gradient(to bottom, #b2622d 0px 11px, #c67139 11px 22px, #d67f48 22px 33px, #f6a06b 33px 44px);"></div>
+  </div>
+  <!-- Wide name bubble -->
+  <div style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); width: min(900px, 88%); text-align: center;">
+    <div style="background: var(--color-surface); border-radius: var(--radius-lg); padding: 22px 48px; box-shadow: var(--shadow-sm);">
+      <h1 class="hero-title" style="font-family: var(--font-heading); font-size: clamp(1.1rem, 2.6vw, 2.1rem); color: var(--color-text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Lauren Stainback | Instructional Designer</h1>
+    </div>
+  </div>
+</div>
+
+<!-- Tagline band -->
+<div style="background: var(--color-surface); padding: 22px 32px; border-bottom: 1px solid var(--color-divider);">
+  <p style="font-family: var(--font-body); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 700; color: var(--color-text); margin: 0; text-align: center;">Instructional designer specializing in AI-powered corporate learning that puts people first</p>
+</div>
+
+<!-- About: text left, photo right -->
+<section style="max-width: 1040px; margin: 0 auto; padding: 72px 32px 64px; background-color: var(--color-neutral-100)">
+  <div class="about-grid" style="display: grid; grid-template-columns: 1fr 340px; gap: 56px; align-items: start;">
+    <div>
+      <h2 style="font-family: var(--font-heading); font-size: 2.2rem; margin: 0 0 28px 0;">Hi, I'm Lauren!</h2>
+      <div style="font-family: var(--font-body); line-height: 1.8; color: var(--color-text); display: flex; flex-direction: column; gap: 18px;">
+        <p style="margin: 0;">I'm an instructional designer who believes the best learning experiences live at the intersection of smart design and genuine human connection. I use AI to build corporate learning that's sharper, faster, and still deeply rooted in how people actually grow.</p>
+        <p style="margin: 0;">My path here wasn't straight, and I think that's what makes my work different. I spent years in outdoor education leading corporate team building experiences and facilitating leadership development programs. I designed activities, read groups in real time, and learned how to create the conditions where real learning happens. Later I found myself in fine dining, earning my sommelier certification and teaching wine education to restaurant staff. It turns out that helping someone understand terroir and helping someone build a new skill aren't that different. Both require you to meet people where they are.</p>
+        <p style="margin: 0;">Now I bring that facilitation instinct into corporate L&amp;D, paired with AI tools that make the design process smarter and faster. I'm completing my Instructional Design certificate from Mesa College this November, and my internship at SentinelOne gave me hands-on experience building real learning solutions inside a growing organization.</p>
+        <p style="margin: 0;">I'm an instructional designer who thinks the best corporate learning starts with understanding people, not just content. AI helps me get there more efficiently. The rest is just paying attention to people.</p>
+      </div>
+    </div>
+    <!-- Photo — full headshot, no forced crop -->
+    <div style="border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md);">
+      <img src="uploads/SanDiegoCollegeLaurenStainback-39.JPG" style="width: 100%; display: block; object-fit: cover; object-position: top center;" alt="Lauren Stainback">
+    </div>
+  </div>
+</section>
+
+<!-- Two tiles: Projects + Get in Touch -->
+<section style="max-width: 1040px; margin: 0 auto; padding: 0 32px 80px; background-color: var(--color-neutral-100)">
+  <div class="tiles-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+
+    <a href="projects/projects.dc.html" class="tile" style="display: block; background: var(--color-accent); border-radius: var(--radius-lg); padding: 48px 40px; text-decoration: none; box-shadow: var(--shadow-md);">
+      <span style="font-family: var(--font-body); color: var(--color-accent-200); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;">Portfolio</span>
+      <h2 style="font-family: var(--font-heading); font-size: 2rem; color: var(--color-neutral-900); margin: 12px 0 14px 0">Projects</h2>
+      <p style="font-family: var(--font-body); color: var(--color-accent-100); margin: 0 0 24px 0; line-height: 1.6;">eLearning, LMS design, and AI-powered learning tools.</p>
+      <span style="font-family: var(--font-body); color: var(--color-bg); font-weight: 700; font-size: 20px">Explore →</span>
+    </a>
+
+    <div id="contact" class="tile" style="background: var(--color-surface); border-radius: var(--radius-lg); padding: 48px 40px; box-shadow: var(--shadow-md);">
+      <span style="font-family: var(--font-body); color: var(--color-neutral-600); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;">Let's connect</span>
+      <h2 style="font-family: var(--font-heading); font-size: 2rem; margin: 12px 0 14px 0;">Get in Touch</h2>
+      <p style="font-family: var(--font-body); color: var(--color-neutral-700); margin: 0 0 28px 0; line-height: 1.6;">Based in San Diego, CA. Open to freelance, contract, and full-time opportunities.</p>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        
+        <a href="https://www.linkedin.com/in/lauren-stainback-/" target="_blank" rel="noopener" class="btn btn-primary" style="text-decoration: none; text-align: center; color: var(--color-neutral-900)">LinkedIn</a><a href="mailto:Lstainback@icloud.com" class="btn btn-secondary" style="text-decoration: none; text-align: center; background-color: var(--color-accent)">Lstainback@icloud.com</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Footer -->
+<footer style="background: var(--color-neutral-900); padding: 40px 32px; text-align: center;">
+  <p style="font-family: var(--font-body); color: var(--color-neutral-500); margin: 0; font-size: 0.9rem;">© 2025 Lauren Stainback · Instructional Designer · San Diego, CA</p>
+</footer>
+</x-dc>
+</body>
+</html>
