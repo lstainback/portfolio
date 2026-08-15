@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Value Dashboard Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root { color-scheme: light; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Figtree', -apple-system, sans-serif;
+  background: #f5ead8;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+header {
+  background: #f8f3ec;
+  border-bottom: 1px solid #e8e0d4;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+header h1 {
+  font-family: 'Caprasimo', serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #2a1f14;
+}
+header .sub {
+  font-size: 0.76rem;
+  color: #8a7560;
+  margin-top: 1px;
+}
+
+#chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+}
+
+.msg {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.msg.bot {
+  background: #fffdf9;
+  color: #2a1f14;
+  align-self: flex-start;
+  border: 1px solid #e8e0d4;
+  border-top-left-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.msg.user {
+  background: #c67139;
+  color: white;
+  align-self: flex-end;
+  border-top-right-radius: 4px;
+}
+
+#input-area {
+  background: #f8f3ec;
+  border-top: 1px solid #e8e0d4;
+  padding: 12px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+#user-input {
+  flex: 1;
+  border: 1px solid #ddd5c8;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 0.92rem;
+  font-family: 'Figtree', sans-serif;
+  resize: none;
+  outline: none;
+  line-height: 1.45;
+  min-height: 40px;
+  max-height: 110px;
+  background: #fffdf9;
+  transition: border-color 0.15s;
+  color: #2a1f14;
+}
+#user-input:focus { border-color: #c67139; }
+#user-input::placeholder { color: #b0a090; }
+
+#send-btn {
+  background: #c67139;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+#send-btn:hover { background: #a85e2e; }
+#send-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+/* Upload card shown in chat */
+.upload-card {
+  background: #fffdf9;
+  border: 1px solid #e8e0d4;
+  border-radius: 14px;
+  padding: 18px 20px;
+  align-self: flex-start;
+  max-width: 80%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.upload-card p { font-size: 0.85rem; color: #5a4a38; line-height: 1.5; }
+.upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0e8dc;
+  border: 1px solid #ddd5c8;
+  color: #2a1f14;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: fit-content;
+}
+.upload-label:hover { background: #e8ddd0; }
+
+/* Download card */
+.dl-card {
+  background: #fffdf9;
+  border: 1px solid #e8e0d4;
+  border-radius: 14px;
+  padding: 22px;
+  align-self: flex-start;
+  max-width: 320px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.dl-card h3 {
+  font-family: 'Caprasimo', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #2a1f14;
+  margin-bottom: 7px;
+}
+.dl-card p { font-size: 0.82rem; color: #7a6a58; line-height: 1.5; margin-bottom: 14px; }
+.dl-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.dl-btn {
+  display: inline-block;
+  background: #c67139;
+  color: white;
+  text-decoration: none;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: 'Figtree', sans-serif;
+  transition: background 0.15s;
+}
+.dl-btn:hover { background: #a85e2e; }
+.dl-btn-sec {
+  display: inline-block;
+  background: transparent;
+  color: #c67139;
+  text-decoration: none;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #c67139;
+  font-family: 'Figtree', sans-serif;
+  transition: all 0.15s;
+}
+.dl-btn-sec:hover { background: #fdf5ef; }
+
+@media (max-width: 500px) {
+  .msg, .dl-card, .upload-card { max-width: 92%; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Personal Value Dashboard Builder</h1>
+    <div class="sub">A Claude skill by Lauren Stainback</div>
+  </div>
+</header>
+
+<div id="chat-area"></div>
+
+<div id="input-area">
+  <textarea id="user-input" placeholder="Type your answer here..." rows="1"></textarea>
+  <button id="send-btn" aria-label="Send">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    </svg>
+  </button>
+</div>
+
+<script>
+// ============================================================
+//  STATE
+// ============================================================
+var step = 'ENTRY';
+var d = {
+  rawQ1: '', name: '', role: '', org: '',
+  timePeriod: '',
+  projects: [],
+  projIdx: 0,
+  hurdles: '', generalHurdle: '',
+  acc1: '', acc1Why: '', acc2: '', acc3: '',
+  stand1: '', stand2: '',
+  voice: '',
+  extras: [],
+  colors: { primary: '#5a7a62', secondary: '#4a6a52', accent: '#5a7a62' },
+  generatedHtml: '',
+  _pausedStep: null,
+  _pausedProjIdx: 0,
+  _gobackItems: [],
+  _gobackChosen: null,
+  _nudgedSteps: {}
+};
+
+// ============================================================
+//  UI HELPERS
+// ============================================================
+var chatArea = document.getElementById('chat-area');
+var inp = document.getElementById('user-input');
+var btn = document.getElementById('send-btn');
+
+function bot(text) {
+  var el = document.createElement('div');
+  el.className = 'msg bot';
+  el.innerHTML = text.replace(/\n/g, '<br>');
+  chatArea.appendChild(el);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return el;
+}
+
+// Renders a bot message with visual color swatches next to hex codes
+function botColorPreview(intro, colors, outro) {
+  var el = document.createElement('div');
+  el.className = 'msg bot';
+  var html = '';
+  if (intro) html += intro.replace(/\n/g, '<br>') + '<br><br>';
+  html += '<div style="display:flex;flex-direction:column;gap:5px;margin:2px 0">';
+  colors.forEach(function(c) {
+    html += '<div style="display:flex;align-items:center;gap:7px">' +
+      '<span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:' + c[1] + ';border:1px solid rgba(0,0,0,0.14);flex-shrink:0"></span>' +
+      '<span style="font-size:0.88rem;color:#2a1f14">' + c[0] + ': <code style="font-family:monospace;font-size:0.82rem;background:#f0e8dc;padding:1px 5px;border-radius:3px">' + c[1] + '</code>' +
+      (c[2] ? ' <span style="font-size:0.78rem;color:#8a7560">(' + c[2] + ')</span>' : '') +
+      '</span></div>';
+  });
+  html += '</div>';
+  if (outro) html += '<br><br>' + outro.replace(/\n/g, '<br>');
+  el.innerHTML = html;
+  chatArea.appendChild(el);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return el;
+}
+
+function showUploadOption() {
+  var card = document.createElement('div');
+  card.className = 'upload-card';
+  card.id = 'upload-card';
+  card.innerHTML =
+    '<p>Upload a logo or brand image and I\'ll pull the colors from it automatically. Or type hex codes below, or type "skip" for the default palette.</p>' +
+    '<label class="upload-label" for="logo-file">' +
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+    'Upload Image' +
+    '</label>' +
+    '<input type="file" id="logo-file" accept="image/*" style="display:none">';
+  chatArea.appendChild(card);
+  chatArea.scrollTop = chatArea.scrollHeight;
+
+  document.getElementById('logo-file').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    card.remove();
+    var userMsg = document.createElement('div');
+    userMsg.className = 'msg user';
+    userMsg.textContent = 'Uploaded: ' + file.name;
+    chatArea.appendChild(userMsg);
+    bot("Analyzing your image...");
+    extractColors(file, function(primary, secondary, accent) {
+      d.colors = { primary: primary, secondary: secondary, accent: accent };
+      botColorPreview(
+        "Got it! Here are the colors I pulled:",
+        [['Primary', primary], ['Secondary', secondary], ['Accent', accent]],
+        "These will be used for your hero section, badges, and highlights. Everything else stays neutral. Do these look right, or want to swap anything out?"
+      );
+      step = 'STEP6_CONFIRM';
+    });
+  });
+}
+
+function showDownload(html) {
+  d.generatedHtml = html;
+  var card = document.createElement('div');
+  card.className = 'dl-card';
+  card.innerHTML =
+    '<h3>Your dashboard is ready!</h3>' +
+    '<p>Download it as an HTML file you can open in any browser, share by email, or upload anywhere. No login required.</p>' +
+    '<div class="dl-actions">' +
+    '<button class="dl-btn" id="dl-primary">Download Dashboard</button>' +
+    '</div>' +
+    '<p style="margin-top:12px;font-size:0.78rem;color:#9a8a78;line-height:1.5">Want fully AI-polished copy? Upload your downloaded file at <a href="https://claude.ai" target="_blank" style="color:#c67139;text-decoration:none;font-weight:600">claude.ai</a> and ask Claude to rewrite it in your voice.</p>';
+  chatArea.appendChild(card);
+  chatArea.scrollTop = chatArea.scrollHeight;
+
+  document.getElementById('dl-primary').addEventListener('click', function() {
+    try {
+      var blob = new Blob([html], { type: 'text/html' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'value-dashboard.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    } catch(e) {
+      try {
+        var a2 = document.createElement('a');
+        a2.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+        a2.download = 'value-dashboard.html';
+        document.body.appendChild(a2);
+        a2.click();
+        document.body.removeChild(a2);
+      } catch(e2) {
+        var msg = document.createElement('div');
+        msg.className = 'msg bot';
+        msg.textContent = "Download isn't supported in this preview — visit the tool on your GitHub Pages site to save the file.";
+        chatArea.appendChild(msg);
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }
+    }
+  });
+}
+
+function disable() {
+  inp.disabled = true;
+  btn.disabled = true;
+  inp.placeholder = 'Conversation complete.';
+}
+
+inp.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); go(); }
+});
+btn.addEventListener('click', go);
+inp.addEventListener('input', function() {
+  inp.style.height = 'auto';
+  inp.style.height = Math.min(inp.scrollHeight, 110) + 'px';
+});
+
+function go() {
+  var val = inp.value.trim();
+  if (!val) return;
+  var el = document.createElement('div');
+  el.className = 'msg user';
+  el.innerHTML = val.replace(/\n/g, '<br>');
+  chatArea.appendChild(el);
+  inp.value = '';
+  inp.style.height = 'auto';
+  chatArea.scrollTop = chatArea.scrollHeight;
+  handle(val);
+}
+
+// ============================================================
+//  STEP MACHINE
+// ============================================================
+// ============================================================
+//  GO-BACK SYSTEM
+// ============================================================
+function buildGoBackMenu(pausedAtStep) {
+  var order = ['S1_Q1','S1_Q2','S2_LIST','S2_DESC','S2_IMPACT','S2_HURDLES','S3_Q1','S3_Q2','S3_Q3','S3_Q4','S4_Q1','S4_Q2','STEP5','STEP6','STEP6_CONFIRM','STEP7','STEP7_EDIT'];
+  var idx = order.indexOf(pausedAtStep);
+  var items = [];
+  if (idx > 0) items.push({ key: 'S1_Q1', label: 'Your name, role, and org' });
+  if (idx > 1) items.push({ key: 'S1_Q2', label: 'Time period' });
+  d.projects.forEach(function(p, i) {
+    if (idx > order.indexOf('S2_DESC')) items.push({ key: 'S2_DESC', projIdx: i, label: '"' + p.name + '" — description & status' });
+    if (idx > order.indexOf('S2_IMPACT') && p.impact) items.push({ key: 'S2_IMPACT', projIdx: i, label: '"' + p.name + '" — team impact' });
+  });
+  if (idx >= order.indexOf('S2_HURDLES')) items.push({ key: 'S2_HURDLES', label: 'Project hurdles' });
+  if (idx >= order.indexOf('S3_Q1')) items.push({ key: 'S3_Q1', label: 'Biggest accomplishment' });
+  if (idx >= order.indexOf('S3_Q2')) items.push({ key: 'S3_Q2', label: 'What made it stand out' });
+  if (idx >= order.indexOf('S3_Q3')) items.push({ key: 'S3_Q3', label: "Other things you're proud of" });
+  if (idx >= order.indexOf('S3_Q4')) items.push({ key: 'S3_Q4', label: 'Helping colleagues' });
+  if (idx >= order.indexOf('S4_Q1')) items.push({ key: 'S4_Q1', label: 'How your manager would describe you' });
+  if (idx >= order.indexOf('S4_Q2')) items.push({ key: 'S4_Q2', label: 'Above and beyond' });
+  if (idx >= order.indexOf('STEP5')) items.push({ key: 'STEP5', label: 'Voice / tone sample' });
+  return items;
+}
+
+function getExistingAnswer(key, pi) {
+  if (key === 'S1_Q1') return d.rawQ1;
+  if (key === 'S1_Q2') return d.timePeriod;
+  if (key === 'S2_DESC' && pi !== undefined) return d.projects[pi].descRaw;
+  if (key === 'S2_IMPACT' && pi !== undefined) return d.projects[pi].impact;
+  if (key === 'S2_HURDLES') return d.hurdles;
+  if (key === 'S3_Q1') return d.acc1;
+  if (key === 'S3_Q2') return d.acc1Why;
+  if (key === 'S3_Q3') return d.acc2;
+  if (key === 'S3_Q4') return d.acc3;
+  if (key === 'S4_Q1') return d.stand1;
+  if (key === 'S4_Q2') return d.stand2;
+  if (key === 'STEP5') return d.voice;
+  return '';
+}
+
+function reaskForGoBack(key, pi) {
+  var qs = {
+    'S1_Q1': "What's your name, current role, and organization name?",
+    'S1_Q2': "What time period are we tracking for this dashboard?",
+    'S2_DESC': 'For ' + (pi !== undefined ? d.projects[pi].name : 'this project') + ', tell me one sentence on what it is, and is it planning, in progress, or complete?',
+    'S2_IMPACT': "What's the one thing " + (pi !== undefined ? d.projects[pi].name : 'this project') + ' will change or improve for the team?',
+    'S2_HURDLES': "Have you faced any hurdles on these projects? What was hard and how'd you work through it?",
+    'S3_Q1': 'What accomplishment has been the biggest highlight of this ' + d.timePeriod + '?',
+    'S3_Q2': 'What made that one stand out, and what changed because of it?',
+    'S3_Q3': "Anything else you're proud of, big or small?",
+    'S3_Q4': 'Did you help anyone else out, a colleague or peer, with anything?',
+    'S4_Q1': 'If your manager described you to someone else, what would you hope they say?',
+    'S4_Q2': 'Is there anything you have done that you think went above and beyond what was expected of you in this role?',
+    'STEP5': 'Tell me in your own words about the thing you are most proud of so far.'
+  };
+  var q = qs[key] || 'What would you like to update?';
+  var existing = getExistingAnswer(key, pi);
+  var note = existing && existing.length > 3
+    ? '\n\nYou said: "' + existing.substring(0, 120) + (existing.length > 120 ? '...' : '') + '"\n\nType your complete updated answer (include anything you want to keep plus what you\'re adding):'
+    : '';
+  bot(q + note);
+}
+
+function reaskCurrentStep(s) {
+  var questions = {
+    'S1_Q1':     function() { bot("What's your name, current role, and organization name?"); },
+    'S1_Q2':     function() { bot("How long have you been in this role, and what time period are we tracking for this dashboard?"); },
+    'S2_LIST':   function() { bot("What projects have you been working on? Just list the names, bullet points are fine."); },
+    'S2_DESC':   function() { askProjDesc(); },
+    'S2_IMPACT': function() { bot("What's the one thing " + d.projects[d.projIdx].name + " will change or improve for the team?"); },
+    'S2_HURDLES':function() { bot("Have you faced any hurdles on these projects? What was hard and how'd you work through it?"); },
+    'S3_Q1':     function() { bot("What accomplishment has been the biggest highlight of this " + d.timePeriod + "?"); },
+    'S3_Q2':     function() { bot("What made that one stand out, and what changed because of it?"); },
+    'S3_Q3':     function() { bot("Anything else you're proud of, big or small?"); },
+    'S3_Q4':     function() { bot("Did you help anyone else out, a colleague or peer, with anything?"); },
+    'S4_Q1':     function() { bot("If your manager described you to someone else, what would you hope they say?"); },
+    'S4_Q2':     function() { bot("Is there anything you have done that you think went above and beyond what was expected of you in this role?"); },
+    'STEP5':     function() { bot("Tell me in your own words about the thing you are most proud of so far."); }
+  };
+  if (questions[s]) questions[s]();
+}
+
+// ============================================================
+//  SAFETY GUARDRAIL
+// ============================================================
+function guardRail(val) {
+  var t = val.toLowerCase().trim();
+
+  // ── CRISIS ──────────────────────────────────────────────────
+  // Suicidal ideation, self-harm, not wanting to exist
+  var crisis = [
+    'suicid', 'self harm', 'self-harm', 'selfharm',
+    'kill myself', 'kill my self', 'killing myself',
+    'want to die', 'wanna die', 'wanted to die',
+    'end my life', 'end it all', 'take my life', 'take my own life',
+    'hurt myself', 'harm myself', 'cutting myself', 'cut myself',
+    'not worth living', "life isn't worth", 'life is not worth',
+    'nothing to live for', 'no reason to live', 'no reason to be here',
+    "don't want to be here", 'do not want to be here',
+    "don't want to exist", 'do not want to exist',
+    'wish i was dead', 'wish i were dead',
+    'rather be dead', 'better off dead',
+    'tired of living', 'sick of living', 'sick of being alive',
+    'thinking about ending', 'thought about ending',
+    'thinking about hurting myself', 'thought about hurting',
+    'give up and kill', 'kill and give up',
+    "can't live like this", 'cannot live like this'
+  ];
+  for (var i = 0; i < crisis.length; i++) {
+    if (t.indexOf(crisis[i]) >= 0) return 'crisis';
+  }
+
+  // ── PERSONAL VENTING ────────────────────────────────────────
+  // Heavy personal distress — clearly not work accomplishment content
+  var venting = [
+    // Giving up on life/everything
+    'i want to give up', 'i wanna give up', 'i just want to give up',
+    'want to give up on everything', 'given up on everything',
+    'i give up on life', 'want to quit everything', 'quit my life',
+    // Hate (personal, not professional frustration)
+    'i hate my life', 'i hate myself',
+    'i hate my boss', 'i hate my manager',
+    'i hate this job', 'i hate this company', 'i hate this place',
+    'hate everything about my life', 'hate everything about myself',
+    'my life is awful', 'my life is terrible', 'my life sucks', 'life sucks',
+    'everything is awful', 'everything is terrible', 'everything sucks',
+    // Mental health distress
+    "i'm so depressed", 'i am so depressed', 'feeling so depressed',
+    "i'm falling apart", 'i am falling apart',
+    "i'm breaking down", 'i am breaking down', 'having a breakdown',
+    'mental breakdown', 'nervous breakdown',
+    "i'm not okay", 'i am not okay', "i'm not ok", 'i am not ok',
+    "i'm spiraling", 'i am spiraling',
+    'struggling with my mental health', 'my mental health is bad',
+    // Hopeless / worthless / failure
+    'i feel hopeless', 'i feel worthless', 'feeling hopeless', 'feeling worthless',
+    'i am hopeless', 'i am worthless',
+    'i feel like a failure', 'i am a failure', "i'm a failure",
+    'i feel so lost', 'so lost right now',
+    // Nothing matters
+    'nothing matters anymore', 'none of this matters',
+    'what is the point of life', "what's the point of life",
+    'no point anymore', 'there is no point',
+    // Isolation / alone
+    'no one cares about me', 'nobody cares about me',
+    'feel so alone', 'feeling so alone', 'completely alone',
+    'no one understands me', 'nobody understands me', 'no one to talk to',
+    // Can't go on / can't cope
+    "i can't go on", 'i cannot go on',
+    "i can't take it anymore", "i can't take this anymore", 'cannot take it anymore',
+    "i can't cope", 'i cannot cope', 'can\'t cope anymore',
+    // Done with everything
+    "i'm done with everything", 'i am done with everything', 'done with my life',
+    "i've given up", 'i have given up on',
+    // Crying / distress signals
+    "can't stop crying", 'cannot stop crying', 'been crying',
+    'crying myself to sleep',
+    // Burnout (personal, not work productivity)
+    'burnt out on life', 'burned out on life', 'burnout from life'
+  ];
+  for (var j = 0; j < venting.length; j++) {
+    if (t.indexOf(venting[j]) >= 0) return 'venting';
+  }
+
+  // ── OFF-TOPIC ────────────────────────────────────────────────
+  // Using as a general AI / clearly non-dashboard requests
+  var offTopic = [
+    // Creative writing
+    'tell me a joke', 'tell me a funny', 'say something funny', 'make me laugh',
+    'write me a poem', 'write a poem', 'write a haiku', 'write me a haiku',
+    'write a story', 'write me a story', 'write me a song', 'write a song',
+    'write me some lyrics', 'write lyrics', 'write me an essay', 'write an essay',
+    'write me a letter to', 'write a letter to my',
+    'tell me a riddle', 'give me a riddle',
+    // General information
+    "what's the weather", 'what is the weather', 'weather today', 'weather forecast',
+    'what time is it', 'what day is it', "what's today's date",
+    "what's in the news", 'latest news', 'what happened today',
+    'stock price', 'stock market', 'bitcoin price', 'crypto price',
+    'sports score', 'who won the game', 'who won the match',
+    // Personal relationships (clearly outside work scope)
+    'relationship advice', 'dating advice', 'love advice', 'breakup advice',
+    'should i break up', 'how do i break up',
+    'my ex boyfriend', 'my ex girlfriend',
+    // Search / web
+    'search the web', 'search google', 'google this', 'look it up', 'search for me',
+    // Translation / math
+    'translate this', 'translate to english', 'translate to spanish', 'how do you say that in',
+    'calculate this for me', 'solve this equation',
+    // Food / travel
+    'recipe for', 'how to cook', 'how to bake', 'what should i eat',
+    'restaurant recommendation', 'where should i eat',
+    'where should i travel', 'travel recommendation',
+    // AI identity testing (realistic variants for all three user groups)
+    'are you chatgpt', 'is this chatgpt', 'are you gpt', 'is this gpt',
+    'are you claude', 'is this claude', 'is this anthropic',
+    'are you real ai', 'is this real ai', 'is this active ai', 'is this live ai',
+    'are you an ai', 'are you a robot', 'are you a bot', 'are you a real person',
+    'are you alive', 'are you sentient', 'are you conscious',
+    'do you have feelings', 'do you feel', 'do you think for yourself',
+    'who made you', 'who created you', 'who built you',
+    'what ai is this', 'what model are you', 'which ai is this', 'what version are you',
+    'claude or chatgpt', 'chatgpt or claude', 'are you a human',
+    // Political
+    'political opinion', 'your political view', 'are you liberal', 'are you conservative',
+    'do you support trump', 'do you support biden', 'do you support harris',
+    // Medical / legal
+    'medical advice', 'diagnose me', 'should i take this medication',
+    'legal advice', 'can i sue', 'is it legal to',
+    // Entertainment
+    'movie recommendation', 'what should i watch', 'recommend a movie',
+    'recommend a tv show', 'what show should i', 'book recommendation',
+    'what should i read', 'music recommendation',
+    // Trying to use it for tasks it doesn't do
+    'write my resume', 'help me write a cover letter', 'write a cover letter',
+    'write my performance review', 'do my homework', 'help me with homework',
+    'be my therapist', 'act as my therapist', 'give me therapy', 'therapy session',
+    // General chatbot probing (intern/curious user behavior)
+    'what else can you do', 'what can you do for me', 'can you do anything else',
+    'help me with something else', 'help me with anything'
+  ];
+  for (var k = 0; k < offTopic.length; k++) {
+    if (t.indexOf(offTopic[k]) >= 0) return 'offtopic';
+  }
+
+  return null;
+}
+
+function handle(val) {
+  var low = val.toLowerCase();
+
+  // ---- SAFETY GUARDRAIL ----
+  var guard = guardRail(val);
+  if (guard === 'crisis') {
+    bot("It sounds like you might be going through something difficult. This tool isn't the right resource for that — it's a work accomplishment tracker with no live AI behind it.\n\nIf you're struggling, please reach out to someone you trust or a mental health professional.");
+    disable(); return;
+  }
+  if (guard === 'venting' || guard === 'offtopic') {
+    bot("That feels outside what this tool is set up for. This is a work accomplishment tracker — not a general assistant, and there's no active AI behind it. It only knows how to help document professional wins.\n\nIf you're looking for a full AI experience, reach out to Lauren at lstainback.github.io/portfolio.");
+    disable(); return;
+  }
+
+  // ---- GLOBAL FORGOT INTERCEPTOR ----
+  // Catches "I forgot", "wait", "oops" etc. mid-flow so they don't get stored as answers.
+  // alwaysForgot: unambiguous correction phrases — no length limit.
+  // shortForgot: ambiguous phrases (could be real answers) — only trigger under 120 chars.
+  var midFlowSteps = ['S1_Q2','S2_LIST','S2_DESC','S2_IMPACT','S2_HURDLES','S3_Q1','S3_Q2','S3_Q3','S3_Q4','S4_Q1','S4_Q2','STEP5','STEP6','STEP6_CONFIRM','STEP7','STEP7_EDIT'];
+  if (midFlowSteps.indexOf(step) >= 0) {
+    var alwaysForgot =
+      low.indexOf('forgot') >= 0 ||
+      low.startsWith('oops') || low.startsWith('opps') || low.startsWith('oop') ||
+      low.indexOf('meant to say') >= 0 || low.indexOf('meant to add') >= 0 ||
+      low.indexOf('meant to include') >= 0 ||
+      low.indexOf('go back') >= 0 || low.indexOf('need to go back') >= 0 ||
+      low.indexOf('want to go back') >= 0 || low.indexOf('can i go back') >= 0 ||
+      low.indexOf('wanted to add') >= 0 || low.indexOf('want to add') >= 0 ||
+      low.indexOf('can i change') >= 0 || low.indexOf('need to change') >= 0 ||
+      low.indexOf('need to fix') >= 0 || low.indexOf('i made a mistake') >= 0;
+    var shortForgot = val.length < 120 && (
+      low === 'wait' || low === 'wait!' || low === 'wait.' || low === 'wait what' ||
+      low.startsWith('oh wait') || low.startsWith('wait,') || low.startsWith('wait ') ||
+      low.startsWith('oh no') || low.startsWith('oh god') || low.startsWith('hold on') ||
+      low.startsWith('actually')
+    );
+    var looksLikeForgot = alwaysForgot || shortForgot;
+    if (looksLikeForgot) {
+      d._pausedStep = step;
+      d._pausedProjIdx = d.projIdx;
+      var gbItems = buildGoBackMenu(step);
+      d._gobackItems = gbItems;
+      step = 'GOBACK_PICK';
+      var menuLines = gbItems.map(function(item, i) { return (i+1) + '. ' + item.label; }).join('\n');
+      bot("No problem! Which question do you want to go back to?\n\n" + menuLines + "\n\nJust say the number, or describe which one (like \"hurdles\" or \"biggest win\").");
+      return;
+    }
+  }
+
+  if (step === 'GOBACK_PICK') {
+    var items = d._gobackItems;
+    var chosen = null;
+    var num = parseInt(low);
+    if (!isNaN(num) && num >= 1 && num <= items.length) {
+      chosen = items[num - 1];
+    } else {
+      // Keyword matching against question labels and common synonyms
+      var kwMap = [
+        { w: ['hurdle','challenge','obstacle','hard','difficult','struggle'], k: 'S2_HURDLES' },
+        { w: ['accomplishment','biggest','highlight','achievement','win','major'], k: 'S3_Q1' },
+        { w: ['stand out','what made','changed because','standout','made it'], k: 'S3_Q2' },
+        { w: ['proud','else','other thing','also proud'], k: 'S3_Q3' },
+        { w: ['help','colleague','peer','co-worker','teammate','someone else'], k: 'S3_Q4' },
+        { w: ['manager','describe','reputation','how would'], k: 'S4_Q1' },
+        { w: ['above','beyond','expected','extra'], k: 'S4_Q2' },
+        { w: ['name','role','org','organization','title','company'], k: 'S1_Q1' },
+        { w: ['time','period','quarter','year','month','when'], k: 'S1_Q2' },
+        { w: ['impact','change for the team','improve','team impact'], k: 'S2_IMPACT' },
+        { w: ['description','status','planning','progress','what is','project'], k: 'S2_DESC' },
+        { w: ['voice','tone','own words','proud of so far'], k: 'STEP5' }
+      ];
+      var outer = false;
+      for (var ki = 0; ki < kwMap.length && !outer; ki++) {
+        for (var wi = 0; wi < kwMap[ki].w.length && !outer; wi++) {
+          if (low.indexOf(kwMap[ki].w[wi]) >= 0) {
+            var tk = kwMap[ki].k;
+            for (var ii = 0; ii < items.length; ii++) {
+              if (items[ii].key === tk) { chosen = items[ii]; outer = true; break; }
+            }
+          }
+        }
+      }
+      // Also try matching project names
+      if (!chosen) {
+        d.projects.forEach(function(proj, pidx) {
+          if (!chosen && proj.name && low.indexOf(proj.name.toLowerCase().slice(0, 5)) >= 0) {
+            for (var jj = 0; jj < items.length; jj++) {
+              if (items[jj].projIdx === pidx) { chosen = items[jj]; break; }
+            }
+          }
+        });
+      }
+    }
+    if (!chosen) {
+      bot("I didn't catch that one — try saying the number (1–" + items.length + ") or describe it, like \"hurdles\", \"biggest win\", or a project name.");
+      return;
+    }
+    d._gobackChosen = chosen;
+    if (chosen.projIdx !== undefined) d.projIdx = chosen.projIdx;
+    step = 'GOBACK_ANSWER';
+    reaskForGoBack(chosen.key, chosen.projIdx);
+    return;
+  }
+
+  if (step === 'GOBACK_ANSWER') {
+    var ch = d._gobackChosen;
+    var gk = ch.key, gpi = ch.projIdx;
+    if (gk === 'S1_Q1') { d.rawQ1 = val; parseQ1(val); }
+    else if (gk === 'S1_Q2') { d.timePeriod = parseTimePeriod(val); }
+    else if (gk === 'S2_DESC' && gpi !== undefined) {
+      d.projects[gpi].descRaw = val;
+      var sm3 = val.match(/\b(planning|in progress|complete|completed|done|finished)\b/i);
+      if (sm3) d.projects[gpi].status = sm3[1].toLowerCase() === 'planning' ? 'Planning' : (sm3[1].toLowerCase() === 'in progress' ? 'In Progress' : 'Complete');
+    }
+    else if (gk === 'S2_IMPACT' && gpi !== undefined) { d.projects[gpi].impact = val; }
+    else if (gk === 'S2_HURDLES') { d.hurdles = val; matchHurdles(val); }
+    else if (gk === 'S3_Q1') { d.acc1 = val; }
+    else if (gk === 'S3_Q2') { d.acc1Why = val; }
+    else if (gk === 'S3_Q3') { d.acc2 = val; }
+    else if (gk === 'S3_Q4') { d.acc3 = val; }
+    else if (gk === 'S4_Q1') { d.stand1 = val; }
+    else if (gk === 'S4_Q2') { d.stand2 = val; }
+    else if (gk === 'STEP5') { d.voice = val; }
+    var bulletKeys = ['S2_DESC','S2_HURDLES','S3_Q1','S3_Q2','S3_Q3','S4_Q1'];
+    if (hasBullets(val) && bulletKeys.indexOf(gk) >= 0) bot("Got your bullets — converting those to sentences for the dashboard.");
+
+    d.projIdx = d._pausedProjIdx;
+
+    // Sequential resume: after a goback, continue asking questions in order
+    // from right after the goback target toward the paused step, rather than
+    // jumping straight back and skipping everything in between.
+    // e.g. goback to Q12 while paused at Q16 → asks Q13, Q14, Q15, then continues normally.
+    var gobackNext = {
+      'S1_Q1': 'S1_Q2', 'S1_Q2': 'S2_LIST', 'S2_HURDLES': 'S3_Q1',
+      'S3_Q1': 'S3_Q2', 'S3_Q2': 'S3_Q3', 'S3_Q3': 'S3_Q4',
+      'S3_Q4': 'S4_Q1', 'S4_Q1': 'S4_Q2', 'S4_Q2': 'STEP5',
+      'STEP5': 'STEP6', 'STEP6': 'STEP6_CONFIRM', 'STEP6_CONFIRM': 'STEP7'
+    };
+    var gbOrder = ['S1_Q1','S1_Q2','S2_LIST','S2_DESC','S2_IMPACT','S2_HURDLES',
+                   'S3_Q1','S3_Q2','S3_Q3','S3_Q4','S4_Q1','S4_Q2',
+                   'STEP5','STEP6','STEP6_CONFIRM','STEP7'];
+    var nextResume = gobackNext[gk];
+    var resumeIdx = nextResume ? gbOrder.indexOf(nextResume) : -1;
+    var pausedIdx = gbOrder.indexOf(d._pausedStep);
+
+    if (nextResume && resumeIdx >= 0 && resumeIdx < pausedIdx) {
+      step = nextResume;
+      bot("Got it — picking back up where we left off:");
+      reaskCurrentStep(nextResume);
+    } else {
+      step = d._pausedStep;
+      bot("Updated! Back to where we were:");
+      reaskCurrentStep(d._pausedStep);
+    }
+    return;
+  }
+
+  if (step === 'ENTRY') {
+    bot("What's your name, current role, and organization name?");
+    step = 'S1_Q1';
+    return;
+  }
+
+  if (step === 'S1_Q1') {
+    d.rawQ1 = val; parseQ1(val);
+    bot("How long have you been in this role, and what time period are we tracking for this dashboard? (This year, this quarter, all time, or something else?)");
+    step = 'S1_Q2'; return;
+  }
+
+  if (step === 'S1_Q2') {
+    d.timePeriod = parseTimePeriod(val);
+    bot("What projects have you been working on this " + d.timePeriod + "? Just list the names, bullet points are fine.");
+    step = 'S2_LIST'; return;
+  }
+
+  if (step === 'S2_LIST') {
+    var parsed = parseProjects(val);
+    if (parsed.length === 0) { bot("I didn't catch any project names. Can you list them, one per line or separated by commas?"); return; }
+    d.projects = parsed; d.projIdx = 0;
+    askProjDesc(); step = 'S2_DESC'; return;
+  }
+
+  if (step === 'S2_DESC') {
+    var skipWords = ['no','nope','none','n/a','skip','na'];
+    if (wordCount(val) < 5 && skipWords.indexOf(val.toLowerCase().trim()) < 0 && !d._nudgedSteps['S2_DESC']) {
+      d._nudgedSteps['S2_DESC'] = true;
+      bot("Can you add one more sentence? What is this project, and is it planning, in progress, or complete?");
+      return;
+    }
+    d._nudgedSteps['S2_DESC'] = false;
+    var proj = d.projects[d.projIdx];
+    proj.descRaw = val;
+    var sm = val.match(/\b(planning|in progress|complete|completed|done|finished)\b/i);
+    proj.status = sm ? (sm[1].toLowerCase() === 'planning' ? 'Planning' : sm[1].toLowerCase() === 'in progress' ? 'In Progress' : 'Complete') : 'In Progress';
+    if (hasBullets(val)) bot("Spotted bullet points — converting those to sentences for the dashboard.");
+    bot("What's the one thing " + proj.name + " will change or improve for the team?");
+    step = 'S2_IMPACT'; return;
+  }
+
+  if (step === 'S2_IMPACT') {
+    d.projects[d.projIdx].impact = val;
+    d.projIdx++;
+    if (d.projIdx < d.projects.length) { askProjDesc(); step = 'S2_DESC'; }
+    else { bot("Have you faced any hurdles on these projects? What was hard and how'd you work through it? Please respond detailing which project and what hurdles."); step = 'S2_HURDLES'; }
+    return;
+  }
+
+  if (step === 'S2_HURDLES') {
+    d.hurdles = val; matchHurdles(val);
+    if (hasBullets(val)) bot("Got your bullets — converting those to sentences for the dashboard.");
+    bot("What accomplishment has been the biggest highlight of this " + d.timePeriod + "?");
+    step = 'S3_Q1'; return;
+  }
+
+  if (step === 'S3_Q1') {
+    var skipWords1 = ['no','nope','none','n/a','skip','na'];
+    if (wordCount(val) < 6 && skipWords1.indexOf(val.toLowerCase().trim()) < 0 && !d._nudgedSteps['S3_Q1']) {
+      d._nudgedSteps['S3_Q1'] = true;
+      bot("That's a start — can you add a bit more? What exactly happened, and why does it stand out to you?");
+      return;
+    }
+    if (!d._nudgedSteps['S3_Q1_vague'] && isVague(val)) {
+      d._nudgedSteps['S3_Q1_vague'] = true;
+      bot("Good start. Can you add one specific detail? A number, an outcome, or a before/after comparison makes this really land. For example: how many people were involved, what changed, or what was the feedback?");
+      return;
+    }
+    d.acc1 = val;
+    if (hasBullets(val)) bot("Got your bullets — converting those to sentences for the dashboard.");
+    bot("What made that one stand out, and what changed because of it?");
+    step = 'S3_Q2'; return;
+  }
+  if (step === 'S3_Q2') {
+    if (!d._nudgedSteps['S3_Q2_vague'] && isVague(val)) {
+      d._nudgedSteps['S3_Q2_vague'] = true;
+      bot("Can you be a bit more specific? What actually changed because of this, and how do you know? A concrete example or number makes this section shine.");
+      return;
+    }
+    d.acc1Why = val;
+    if (hasBullets(val)) bot("Got your bullets — converting those to sentences for the dashboard.");
+    bot("Anything else you're proud of, big or small?");
+    step = 'S3_Q3'; return;
+  }
+  if (step === 'S3_Q3') {
+    d.acc2 = val;
+    if (hasBullets(val)) bot("Got your bullets — converting those to sentences for the dashboard.");
+    bot("Did you help anyone else out, a colleague or peer, with anything?");
+    step = 'S3_Q4'; return;
+  }
+
+  if (step === 'S3_Q4') {
+    d.acc3 = val;
+    bot("If your manager described you to someone else, what would you hope they say?");
+    step = 'S4_Q1'; return;
+  }
+
+  if (step === 'S4_Q1') { d.stand1 = val; bot("Is there anything you have done that you think went above and beyond what was expected of you in this role?"); step = 'S4_Q2'; return; }
+
+  if (step === 'S4_Q2') {
+    d.stand2 = val;
+    bot("Before I put this together, one more thing.\n\nTell me in your own words about the thing you are most proud of so far. Do not worry about making it sound polished, that is what I am here for. This helps me match your tone throughout the dashboard so it sounds like your voice, not like every other dashboard out there. I won't copy this statement word for word, I'll use it to inform how I write everything else.");
+    step = 'STEP5'; return;
+  }
+
+  if (step === 'STEP5') {
+    if (wordCount(val) < 8 && !d._nudgedSteps['STEP5']) {
+      d._nudgedSteps['STEP5'] = true;
+      bot("A bit more would help. Even one more sentence about what made it meaningful or how it came together — the more you share, the better I can match your tone.");
+      return;
+    }
+    d.voice = val;
+    bot("We want to make sure your dashboard feels like it belongs to you.\n\nUpload a logo or brand image and I'll pull the colors automatically, drop up to 3 hex codes, or type \"skip\" for the default palette.");
+    showUploadOption();
+    step = 'STEP6'; return;
+  }
+
+  if (step === 'STEP6') {
+    // Remove upload card if still visible
+    var uc = document.getElementById('upload-card');
+    if (uc) uc.remove();
+
+    var hexes = extractHex(val);
+    var isSkip = low === 'skip' || low === 'no' || low === 'default' || low === 'none' || low === 'nope' || hexes.length === 0;
+    if (isSkip) {
+      d.colors = { primary: '#5a7a62', secondary: '#4a6a52', accent: '#5a7a62' };
+      botColorPreview(
+        "Great, I'll use our clean default palette:",
+        [['Primary', '#5a7a62', 'muted sage'], ['Secondary', '#4a6a52', 'deeper sage'], ['Accent', '#5a7a62']],
+        "Does this work, or want to swap anything out?"
+      );
+    } else {
+      var p = hexes[0], s2 = hexes[1] || darken(p, 20), a = hexes[2] || p;
+      d.colors = { primary: p, secondary: s2, accent: a };
+      botColorPreview(
+        "Got it! Here are the colors for your dashboard:",
+        [['Primary', p], ['Secondary', s2], ['Accent', a]],
+        "These will be used for your hero section, badges, and highlights. Do these look right, or want to swap anything out?"
+      );
+    }
+    step = 'STEP6_CONFIRM'; return;
+  }
+
+  if (step === 'STEP6_CONFIRM') {
+    var wantsSwap = (low.indexOf('swap') >= 0 || low.indexOf('change') >= 0 || low.indexOf('different') >= 0) && !isYes(low);
+    if (wantsSwap) { bot("What colors would you prefer? Drop the hex codes and I'll update them."); step = 'STEP6'; }
+    else { doRecap(); step = 'STEP7'; }
+    return;
+  }
+
+  if (step === 'STEP7') {
+    var confirming = isYes(low) || low.indexOf('looks good') >= 0 || low.indexOf('correct') >= 0 || low.indexOf('go ahead') >= 0 || low.indexOf('build') >= 0 || low.indexOf('good') >= 0 || low.indexOf('perfect') >= 0 || low.indexOf('nothing') >= 0 || low.indexOf('all good') >= 0 || low.indexOf('nope') === 0;
+    if (confirming) {
+      bot("Great! Building your dashboard now.");
+      step = 'DONE';
+      setTimeout(buildAndDeliver, 900);
+    } else {
+      bot("What would you like to add or change? Just type it and I'll factor it in — you can add as many things as you need, then say \"build\" when you're ready.");
+      step = 'STEP7_EDIT';
+    }
+    return;
+  }
+
+  if (step === 'STEP7_EDIT') {
+    // If they say build or done, proceed
+    if (low === 'build' || low === 'done' || low === 'ready' || low === "that's it" || low === 'thats it' || low === 'go ahead' || low === 'build it') {
+      bot("Great! Building your dashboard now.");
+      step = 'DONE';
+      setTimeout(buildAndDeliver, 900);
+    } else {
+      // Store additional info
+      d.extras.push(val);
+      bot("Got it, added. Anything else to include, or ready to build? (Type \"build\" when you're ready.)");
+      // Stay in STEP7_EDIT so they can keep adding
+    }
+    return;
+  }
+
+  if (step === 'DONE') {
+    bot("Your dashboard is ready above — use \"Download Dashboard\" to save it as an HTML file.");
+    return;
+  }
+}
+
+function path1Intro() {
+  bot("I'm going to help you build your personal value dashboard. It's a clean, shareable page that captures what you've been working on and what you've accomplished. I'll ask you one question at a time, so this should feel more like a quick chat than a form. Bullet points, half sentences, whatever's fastest for you, all totally fine here, I'll do the polishing.\n\nReady to start?");
+  step = 'READY';
+}
+
+function askProjDesc() {
+  bot("For " + d.projects[d.projIdx].name + ", tell me one sentence on what it is, and is it planning, in progress, or complete?");
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function isYes(s) {
+  return ['yes','yep','yup','sure','ok','okay','ready','yeah','ya','go','sounds good','lets go',"let's go"].indexOf(s) >= 0 || s.indexOf('yes') === 0 || s.indexOf('sure') === 0 || s.indexOf('ready') === 0;
+}
+
+function parseQ1(val) {
+  var parts = val.split(/,/).map(function(s) { return s.trim(); });
+  d.name = parts[0] || val;
+  d.role = parts[1] || '';
+  d.org = parts[2] || (val.match(/\bat\s+([^,]+)/i) || [])[1] || '';
+}
+
+function parseTimePeriod(answer) {
+  var a = answer.trim().replace(/[!?]+$/, '');
+  // Short answer is already just the period — strip leading "this" so templates work cleanly
+  if (a.length <= 50 && !/i'?ve\s+been|i\s+have\s+been/i.test(a)) {
+    var clean = a.replace(/^this\s+/i, '').replace(/\.$/, '');
+    // "year, January through August 2026" or "year - Jan-Aug" → "January through August 2026"
+    clean = clean.replace(/^(?:year|quarter|month)\s*[,\-–:]\s*/i, '');
+    return clean;
+  }
+  var m;
+  // "Let's track this year, January through August 2026" → "year, January through August 2026"
+  m = a.match(/track(?:ing)?\s+(?:this\s+)?([^.!?]{5,60})/i);
+  if (m) return m[1].trim().replace(/[.,!?\s]+$/, '');
+  // "this year/quarter/month [detail]"
+  m = a.match(/\b(?:this\s+)?(year|quarter|month)[^.!?]{0,30}/i);
+  if (m) {
+    var r = m[0].replace(/^this\s+/i, '').trim().replace(/[.,!?\s]+$/, '');
+    return r.replace(/^(?:year|quarter|month)\s*[,\-–:]\s*/i, '');
+  }
+  // Quarter: "Q3 FY27"
+  m = a.match(/\b(q[1-4]\s*(?:fy)?\s*\d{2,4}[^.!?]{0,15})/i);
+  if (m) return m[1].trim().replace(/[.,!?\s]+$/, '');
+  // Month range: "January through August 2026"
+  m = a.match(/((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*[^.!?]{3,40})/i);
+  if (m) return m[1].trim().replace(/[.,!?\s]+$/, '');
+  // "all time"
+  if (/\ball\s+time\b/i.test(a)) return 'all time';
+  // Last sentence as fallback
+  var parts = a.split(/[.]+/).filter(function(s) { return s.trim().length > 3; });
+  return (parts[parts.length - 1] || a).trim().replace(/^this\s+/i, '');
+}
+
+function parseProjects(val) {
+  var items = val.split(/[\n,]+/).map(function(s) { return s.replace(/^[\s\-\*•\d\.]+/, '').trim(); }).filter(function(s) { return s.length > 2; });
+  if (items.length === 0) items = [val.trim()];
+  return items.map(function(n) { return { name: n, descRaw: '', status: 'In Progress', impact: '', hurdle: null }; });
+}
+
+function matchHurdles(text) {
+  var low = text.toLowerCase();
+  if (['none','no','nope','no hurdles','not really','n/a'].indexOf(low) >= 0) return;
+  var matched = false;
+  d.projects.forEach(function(proj) {
+    if (text.toLowerCase().indexOf(proj.name.toLowerCase()) >= 0) {
+      var sents = text.split(/[.!?]/).filter(function(s) { return s.toLowerCase().indexOf(proj.name.toLowerCase()) >= 0 && s.trim().length > 5; });
+      if (sents.length > 0) { proj.hurdle = sents.join('. ').trim(); matched = true; }
+    }
+  });
+  if (!matched) d.generalHurdle = text;
+}
+
+function extractHex(val) {
+  var m = val.match(/#[0-9A-Fa-f]{6}/g) || [];
+  return m.filter(function(v, i, a) { return a.indexOf(v) === i; });
+}
+
+function wordCount(s) {
+  return s.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+}
+
+function hasBullets(text) {
+  var lines = text.split(/\n/).map(function(l) { return l.trim(); }).filter(Boolean);
+  if (lines.length < 2) return false;
+  var bulletPat = /^[-*•·→>◦◆▪]\s+|^\d+[.)]\s+/;
+  var bc = lines.filter(function(l) { return bulletPat.test(l); }).length;
+  return bc >= 2 && bc >= lines.length * 0.55;
+}
+
+// Detects vague, non-specific answers that lack numbers or concrete outcomes.
+// Used to prompt hiring managers / corporates who write in generic terms.
+function isVague(text) {
+  if (!text || text.length < 15) return false;
+  var t = text.toLowerCase();
+  // Any number → specific enough
+  if (/\d+/.test(t)) return false;
+  // Outcome verb + direction preposition → specific enough ("increased by", "reduced from")
+  if (/\b(increased|decreased|reduced|improved|launched|built|created|delivered|completed)\b.*\b(by|from|to)\b/i.test(t)) return false;
+  // A quoted phrase → specific
+  if (/[""][^""]{3,}[""]/.test(t)) return false;
+  // Vague red-flag patterns
+  var red = [
+    /\b(various|several|multiple|many|different)\s+(things|tasks|projects|items|areas|responsibilities|initiatives)\b/i,
+    /\b(managed|handled|oversaw|supported|helped\s+with|assisted\s+with)\s+(the\s+)?(team|project|work|everything|tasks|efforts)\b/i,
+    /\b(team\s+player|hard\s+worker|go.to\s+person|wore\s+many\s+hats|jack\s+of\s+all)\b/i,
+    /\b(helped?\s+drive|drove)\s+(results|growth|success|value|impact)\b/i,
+    /\bresponsible\s+for\s+(the\s+)?(team|project|various|multiple|overall)\b/i,
+    /\b(did|worked\s+on|contributed\s+to)\s+(a\s+lot|many\s+things|various\s+things|everything|multiple\s+things)\b/i
+  ];
+  return red.some(function(p) { return p.test(t); });
+}
+
+function darken(hex, amt) {
+  var r = Math.max(0, parseInt(hex.slice(1,3),16) - amt);
+  var g = Math.max(0, parseInt(hex.slice(3,5),16) - amt);
+  var b = Math.max(0, parseInt(hex.slice(5,7),16) - amt);
+  return '#' + [r,g,b].map(function(v) { return v.toString(16).padStart(2,'0'); }).join('');
+}
+
+function toHex(r, g, b) {
+  return '#' + [r,g,b].map(function(v) { return Math.round(v).toString(16).padStart(2,'0'); }).join('');
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function rgba(hex, a) {
+  if (!hex || hex.length < 7) return 'rgba(90,122,98,' + a + ')';
+  var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+
+// ============================================================
+//  COLOR EXTRACTION FROM IMAGE
+// ============================================================
+function extractColors(file, callback) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      canvas.width = 80; canvas.height = 80;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, 80, 80);
+      var data = ctx.getImageData(0, 0, 80, 80).data;
+
+      // Filter: keep colorful pixels, exclude near-white (cream backgrounds)
+      // and near-black. Brightness ceiling at 205 cuts out cream/off-white.
+      // Saturation floor at 30 cuts out grey/near-grey tones.
+      var pixels = [];
+      for (var i = 0; i < data.length; i += 4) {
+        var r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+        if (a < 128) continue;
+        var brightness = (r + g + b) / 3;
+        var saturation = Math.max(r,g,b) - Math.min(r,g,b);
+        if (brightness > 20 && brightness < 205 && saturation > 30) {
+          pixels.push([r,g,b]);
+        }
+      }
+
+      if (pixels.length < 10) {
+        // Very low saturation or nearly monochrome image — average non-white pixels
+        var tr = 0, tg = 0, tb = 0, cnt = 0;
+        for (var j = 0; j < data.length; j += 4) {
+          var br = (data[j]+data[j+1]+data[j+2])/3;
+          if (data[j+3] > 128 && br > 20 && br < 220) {
+            tr += data[j]; tg += data[j+1]; tb += data[j+2]; cnt++;
+          }
+        }
+        if (cnt > 0) {
+          var primary = toHex(Math.round(tr/cnt), Math.round(tg/cnt), Math.round(tb/cnt));
+          callback(primary, darken(primary, 20), primary);
+        } else {
+          callback('#5a7a62', '#4a6a52', '#5a7a62');
+        }
+        return;
+      }
+
+      // Bucket by rounding to nearest 32 — CLAMP to 255 to prevent hex overflow
+      var buckets = {};
+      pixels.forEach(function(px) {
+        var br = Math.min(255, Math.round(px[0]/32)*32);
+        var bg = Math.min(255, Math.round(px[1]/32)*32);
+        var bb = Math.min(255, Math.round(px[2]/32)*32);
+        var key = br + ',' + bg + ',' + bb;
+        buckets[key] = (buckets[key] || 0) + 1;
+      });
+
+      var keys = Object.keys(buckets).sort(function(a,b) { return buckets[b] - buckets[a]; });
+      var topKey = keys[0];
+      var parts = topKey.split(',').map(Number);
+      var primary = toHex(parts[0], parts[1], parts[2]);
+
+      // Find secondary: first bucket that's sufficiently different in hue
+      var secondary = darken(primary, 25);
+      for (var k = 1; k < keys.length; k++) {
+        var kparts = keys[k].split(',').map(Number);
+        var diff = Math.abs(kparts[0]-parts[0]) + Math.abs(kparts[1]-parts[1]) + Math.abs(kparts[2]-parts[2]);
+        if (diff > 60) {
+          secondary = toHex(kparts[0], kparts[1], kparts[2]);
+          break;
+        }
+      }
+
+      callback(primary, secondary, primary);
+    };
+    img.onerror = function() { callback('#5a7a62', '#4a6a52', '#5a7a62'); };
+    img.src = e.target.result;
+  };
+  reader.onerror = function() { callback('#5a7a62', '#4a6a52', '#5a7a62'); };
+  reader.readAsDataURL(file);
+}
+
+// ============================================================
+//  BULLET TO PROSE CONVERSION
+//  Detects multiline bullet-formatted text and converts it to
+//  flowing prose sentences. Called first inside polish().
+// ============================================================
+function bulletsToProse(text) {
+  if (!text || text.length < 5) return text;
+  var lines = text.split(/\n/).map(function(l) { return l.trim(); }).filter(Boolean);
+  if (lines.length < 2) return text;
+  var bulletPat = /^[-*•·→>◦◆▪]\s+|^\d+[.)]\s+/;
+  var bc = lines.filter(function(l) { return bulletPat.test(l); }).length;
+  if (bc < 2 || bc < lines.length * 0.55) return text;
+
+  var cleaned = lines.map(function(l) { return l.replace(bulletPat, '').trim(); }).filter(Boolean);
+
+  // If a bullet starts with a bare action verb, prepend "I" so it reads first-person
+  var actionVerb = /^(built|created|developed|designed|led|managed|launched|shipped|delivered|drove|improved|increased|reduced|fixed|wrote|presented|facilitated|organized|implemented|coordinated|established|initiated|introduced|trained|mentored|supported|helped|ran|owned|executed|completed|finished|started|collaborated|partnered|spearheaded|championed|achieved|secured|streamlined|automated|proposed|volunteered|took|gave|shared|taught|coached|reviewed|migrated|deployed|tested|documented|researched|analyzed|planned|drafted|edited|produced|published)/i;
+  cleaned = cleaned.map(function(s) {
+    return actionVerb.test(s) ? 'I ' + s.charAt(0).toLowerCase() + s.slice(1) : s;
+  });
+
+  return cleaned.map(function(s) {
+    s = s.trim();
+    if (!/[.!?]$/.test(s)) s += '.';
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }).join(' ');
+}
+
+// ============================================================
+//  CONTENT POLISH
+//  Full pipeline: bullets → prose, punctuation cleanup,
+//  profanity, fillers, informality, professional swaps,
+//  clichés, ALL-CAPS fix, capitalize + punctuate.
+//  For full AI rewriting, use the claude.ai skill.
+// ============================================================
+function polish(text) {
+  if (!text) return '';
+  var s = text.trim();
+
+  // 1. Bullets → prose
+  s = bulletsToProse(s);
+
+  // 2. Punctuation artifact cleanup (before swaps)
+  s = s.replace(/\s*—\s*/g, '. ');
+  s = s.replace(/!{2,}/g, '.').replace(/\?{2,}/g, '?').replace(/\.{2,}/g, '.').replace(/\.\s+\./g, '.').replace(/\s{2,}/g, ' ');
+
+  // 3–7. All swap tables applied in sequence
+  var all = [
+    // — Profanity —
+    [/\bfucking\b/gi,'really'],[/\bfuckin[g']?\b/gi,'really'],[/\bfucked\b/gi,'botched'],
+    [/\bf\*+k(ing|in|ed)?\b/gi,'really'],[/\bfuck(ing|in|ed)?\b,?\s*/gi,''],[/\bbullshit\b/gi,'nonsense'],
+    [/\bbs\b(?=[\s,.])/gi,'nonsense'],[/\bshitty\b/gi,'rough'],[/\bshit\b/gi,'stuff'],
+    [/\basshole\b/gi,'difficult person'],[/\bbitching\b/gi,'complaining'],[/\bbitch\b/gi,'tough'],
+    [/\bpissed\s+off\b/gi,'frustrated'],[/\bpissed\b/gi,'frustrated'],
+    [/\bdamned\b,?\s*/gi,''],[/\bdamn\b,?\s*/gi,''],[/\bdang\b,?\s*/gi,''],
+    [/\bcrap\b/gi,'stuff'],[/\bscrew(ed)?\s+up\b/gi,'messed up'],[/\bscrewed\b/gi,'stuck'],
+    [/\bcockup\b/gi,'mix-up'],[/\bwtf\b/gi,'honestly'],[/\bomg\b/gi,'honestly'],
+    [/\baf\b(?=[\s,.])/gi,'a lot'],[/\bffs\b/gi,'honestly'],
+    // — Fillers (remove or soften) —
+    [/^honestly[,!]?\s+/i,''],[/^(so|well),?\s+/i,''],
+    [/\bbasically,?\s*/gi,''],[/\bliterally,?\s*/gi,''],[/\byou know,?\s*/gi,''],
+    [/\bi mean,?\s*/gi,''],[/\bpretty\s+much\b/gi,'essentially'],[/\bkind\s+of\b/gi,'somewhat'],
+    [/\bsort\s+of\b/gi,'somewhat'],[/\btotally\b,?\s*/gi,''],
+    [/\blike,\s+(?=[a-z])/gi,''],
+    // — Leading "I + action verb" → drop the "I" (reads cleaner as achievement copy) —
+    [/^I (wrote|built|created|developed|designed|led|managed|launched|ran|facilitated|documented|drafted|presented|coordinated|organized|implemented|delivered|established|introduced|trained|mentored|supported|completed|finished|collaborated|researched|analyzed|produced|published|helped|tested|deployed|structured|mapped|solved|fixed|found)\b/i, function(m,v){ return v.charAt(0).toUpperCase()+v.slice(1); }],
+    // — Gen Z slang —
+    [/\bno\s+cap\b,?\s*/gi,''],[/\bperiodt?\b\s*(?=[.!?]|$)/gi,''],
+    [/\bdeadass\b/gi,'honestly'],[/\bngl\b/gi,'honestly'],[/\btbh\b/gi,'to be honest'],
+    [/\btbf\b/gi,'to be fair'],[/\bimo\b/gi,'in my view'],[/\bimho\b/gi,'in my view'],
+    [/\bsmh\b,?\s*/gi,''],[/\blowkey\b/gi,'genuinely'],[/\bhighkey\b/gi,'genuinely'],
+    [/\blegit\b/gi,'genuinely'],[/\bobvs?\b/gi,'clearly'],[/\bbussin(?:g)?\b/gi,'excellent'],
+    [/\bit['']s\s+giving\b/gi,'it conveys'],[/\bhits\s+different\b/gi,'stands out'],
+    [/\bsalty\b/gi,'frustrated'],[/\bsus\b/gi,'questionable'],[/\byikes\b,?\s*/gi,''],
+    [/\bbestie\b/gi,'colleague'],[/\bsquad\b/gi,'team'],[/\bfam\b(?=[\s,.])/gi,'the team'],
+    [/\bamazeballs\b/gi,'excellent'],[/\brizz\b/gi,'charisma'],
+    [/\bunderstood\s+the\s+assignment\b/gi,'delivered exactly what was needed'],
+    [/\bmain\s+character\b/gi,'central contributor'],[/\bchef'?s?\s*kiss\b/gi,'excellent execution'],
+    [/\bate\s+that\b/gi,'delivered on it'],[/\bvibe\s+check\b/gi,'assessment'],
+    [/\brent\s+free\b/gi,''],[/\bsecure\s+the\s+bag\b/gi,'achieve the goal'],
+    [/\bglow\s+up\b/gi,'significant improvement'],[/\bclout\b/gi,'influence'],
+    [/\bnah\s+fr\b,?\s*/gi,''],[/\breal\s+talk,?\s*/gi,''],
+    [/\bobsessed\s+with\b/gi,'passionate about'],
+    // — Millennial / corporate speak —
+    [/\badulting\b/gi,'professional work'],[/\bon\s+fleek\b/gi,'on point'],
+    [/\bkilling\s+it\b/gi,'performing exceptionally'],[/\bcrushed\s+it\b/gi,'delivered excellent results'],
+    [/\bnailed\s+it\b/gi,'executed it well'],[/\bowned\s+it\b/gi,'delivered strong results'],
+    [/\brocking\s+it\b/gi,'performing well'],
+    [/\bbandwidth\b/gi,'capacity'],[/\butilize\b/gi,'use'],[/\bideate\b/gi,'brainstorm'],
+    [/\blearnings\b/gi,'lessons'],[/\bactionable\s+insights\b/gi,'clear next steps'],
+    [/\btake\s+this\s+offline\b/gi,'discuss separately'],[/\bon\s+the\s+same\s+page\b/gi,'aligned'],
+    [/\b10,?000[-\s]foot\s+view\b/gi,'high-level overview'],[/\bin\s+the\s+weeds\b/gi,'deep in the details'],
+    // — Celebrations / interjections (strip entirely) —
+    [/\byeah+\s*(boy+|girl+|boi+)?\b[\s,.]*/gi,''],[/\bwoo+h*o*\b[\s,.]*/gi,''],
+    [/\byay+\b[\s,.]*/gi,''],[/\bwoot+\b[\s,.]*/gi,''],
+    [/\blol\b[\s,.]*/gi,''],[/\blmao\b[\s,.]*/gi,''],[/\bhaha+\b[\s,.]*/gi,''],
+    [/\baw+esome\s+sauce\b/gi,''],[/\bbooo*m\b[\s,.]*/gi,''],
+    // — Informality —
+    [/\bsuper\s+easy\b/gi,'straightforward'],[/\bsuper\s+hard\b/gi,'particularly challenging'],
+    [/\bsuper\s+big\b/gi,'major'],[/\bsuper\s+(?=\w)/gi,'very '],
+    [/\bpretty\s+good\b/gi,'strong'],[/\bpretty\s+easy\b/gi,'straightforward'],
+    [/\bpretty\s+hard\b/gi,'challenging'],[/\bpretty\s+big\b/gi,'significant'],
+    [/\bcrazy\s+good\b/gi,'exceptional'],[/\bcrazy\b/gi,'significant'],[/\binsane\b/gi,'remarkable'],
+    [/\bway\s+better\b/gi,'significantly better'],[/\bguys\b/gi,'team'],
+    [/\bawesome\b/gi,'excellent'],[/\bwild\b/gi,'significant'],
+    // — Casual → professional —
+    [/\bhelped\s+people\b/gi,'supported colleagues'],[/\bhelped\s+out\b/gi,'supported'],
+    [/\bworked\s+with\b/gi,'collaborated with'],[/\bput\s+together\b/gi,'developed'],
+    [/\bpull\s+together\b/gi,'compile'],[/\bfigured\s+out\b/gi,'determined'],
+    [/\bgot\s+it\s+done\b/gi,'delivered it'],[/\bgot\s+done\b/gi,'completed'],
+    [/\bgot\s+through\b/gi,'navigated'],[/\bteamed\s+up\b/gi,'partnered'],
+    [/\bwrote\s+up\b/gi,'documented'],[/\bpushed\s+for\b/gi,'advocated for'],
+    [/\bworked\s+on\b/gi,'contributed to'],[/\bwalked\s+through\b/gi,'guided through'],
+    [/\bran\s+(a|the)\s+(?=\w)/gi,'facilitated a '],[/\bdid\s+a\s+presentation\b/gi,'presented'],
+    [/\bgave\s+a\s+presentation\b/gi,'presented'],[/\bmade\s+a\s+deck\b/gi,'developed a presentation'],
+    [/\bmade\s+a\s+doc\b/gi,'documented'],[/\bmade\s+sure\b/gi,'ensured'],
+    [/\bmade\s+progress\s+on\b/gi,'advanced'],
+    // — Clichés —
+    [/\bat\s+the\s+end\s+of\s+the\s+day\b,?\s*/gi,''],[/\bgoing\s+forward\b,?\s*/gi,''],
+    [/\bmove\s+the\s+needle\b/gi,'make progress'],[/\blow[-\s]hanging\s+fruit\b/gi,'quick wins'],
+    [/\bcircle\s+back\b/gi,'follow up'],[/\bsynergy\b/gi,'collaboration'],
+    [/\bleverage\s+(?=\w)/gi,'use '],[/\bdeep\s+dive\b/gi,'thorough look'],
+    [/\bparadigm\s+shift\b/gi,'major shift'],[/\bthought\s+leader\b/gi,'expert'],
+    [/\bbest[-\s]in[-\s]class\b/gi,'top-quality'],[/\bworld[-\s]class\b/gi,'excellent'],
+    [/\bgame[-\s]changer?\b/gi,'major improvement'],[/\brock\s+star\b/gi,'top performer'],
+    [/\bninja\b/gi,'expert'],[/\bguru\b/gi,'expert'],[/\bbring\s+to\s+the\s+table\b/gi,'contribute'],
+    [/\btouch\s+base\b/gi,'connect'],[/\bthink\s+outside\s+the\s+box\b/gi,'approach it creatively']
+  ];
+  all.forEach(function(pair) { s = s.replace(pair[0], pair[1]); });
+
+  // 8. Post-swap artifact cleanup
+  s = s.replace(/\s{2,}/g,' ').trim()
+       .replace(/,\s*,+/g,',')        // double commas from removed words
+       .replace(/,\s*([.!?])/g,'$1')
+       .replace(/\s+([.,!?])/g,'$1')
+       .replace(/^[,;]\s*/,'')
+       .replace(/\.\s*\./g,'.')   // double period from removed celebration words
+       .replace(/\.\s*$/,'.');    // ensure clean terminal period
+
+  // 9. ALL-CAPS → lowercase (except known acronyms)
+  var acronyms = /^(HTML|CSS|HTTP|HTTPS|JSON|REST|API|URL|URI|CEO|CFO|CTO|COO|VP|HR|KPI|ROI|OKR|LD|LMS|LXP|SCORM|AI|ML|UI|UX|IT|OK|ID|US|UK|EU|ASAP|FYI|TBD|SME|POC|QA|FAQ|SOP|SLA|PM|IC|EM|HQ|S1)$/;
+  s = s.replace(/\b[A-Z]{2,}\b/g, function(m) { return acronyms.test(m) ? m : m.toLowerCase(); });
+
+  // 10. Capitalize first letter + ensure terminal punctuation
+  if (s.length > 0) s = s.charAt(0).toUpperCase() + s.slice(1);
+  if (s.length > 0 && !/[.!?]$/.test(s)) s += '.';
+
+  return s;
+}
+
+// ============================================================
+//  RECAP
+// ============================================================
+function doRecap() {
+  var pList = d.projects.map(function(p, i) { return (i+1) + '. ' + p.name + ' (' + p.status + ')'; }).join('\n');
+  bot("Here is everything you have shared with me so far.\n\n" +
+    "Name / Role / Org: " + d.rawQ1 + "\n" +
+    "Time period: " + d.timePeriod + "\n\n" +
+    "Projects:\n" + pList + "\n\n" +
+    "Top accomplishment: " + d.acc1 + "\n" +
+    "What made it stand out: " + d.acc1Why + "\n" +
+    "Also proud of: " + d.acc2 + "\n" +
+    "Helped others with: " + d.acc3 + "\n\n" +
+    "What stands out: " + d.stand1 + "\n" +
+    "Above and beyond: " + d.stand2);
+  botColorPreview(
+    "Dashboard colors:",
+    [['Primary', d.colors.primary], ['Secondary', d.colors.secondary], ['Accent', d.colors.accent]],
+    "Does this capture everything? If you forgot something or want to add more, just type it and I'll include it. Type \"build\" when you're ready to go."
+  );
+}
+
+// ============================================================
+//  BUILD
+// ============================================================
+function buildAndDeliver() {
+  var html = generateDashboard();
+  showDownload(html);
+}
+
+// ============================================================
+//  HERO STATS — smart selection from actual content
+// ============================================================
+function buildHeroStats() {
+  var total    = d.projects.length;
+  var complete = d.projects.filter(function(p){ return p.status === 'Complete'; }).length;
+  var inProg   = d.projects.filter(function(p){ return p.status === 'In Progress'; }).length;
+  var accCount = [d.acc1, d.acc2, d.acc3].filter(function(a){
+    return a && a.trim().length > 5 && !/^(no|none|nope|n\/a)$/i.test(a.trim());
+  }).length;
+
+  // Scan all substantive text for meaningful numbers
+  var scan = [d.acc1, d.acc1Why, d.acc2, d.acc3, d.stand1, d.stand2, d.generalHurdle]
+    .concat(d.projects.map(function(p){ return (p.impact || '') + ' ' + (p.descRaw || ''); }))
+    .filter(Boolean).join(' ');
+
+  var found = null;
+
+  // 1. Percentage with direction word (most specific)
+  var pm = scan.match(/\b(\d+)\s*%\s+(?:drop|reduction|decrease|increase|improvement|growth|jump|faster)/i);
+  if (pm) {
+    found = { v: pm[1] + '%', l: /drop|reduction|decrease/i.test(pm[0]) ? 'Reduction' : 'Improvement' };
+  }
+  // 2. Bare percentage
+  if (!found) { var pm2 = scan.match(/\b(\d+)\s*%/); if (pm2) found = { v: pm2[1] + '%', l: 'Improvement' }; }
+  // 3. People count
+  if (!found) {
+    var pp = scan.match(/\b(\d+)\s+(?:people|employees|managers|learners|participants|attendees|users|colleagues)\b/i);
+    if (pp && parseInt(pp[1], 10) > 1) found = { v: pp[1], l: 'People Reached' };
+  }
+  // 4. Session / course count
+  if (!found) {
+    var ss = scan.match(/\b(\d+)\s+(sessions?|workshops?|courses?|modules?)\b/i);
+    if (ss && parseInt(ss[1], 10) > 1) {
+      var unit = ss[2].replace(/s$/i, '');
+      found = { v: ss[1], l: unit.charAt(0).toUpperCase() + unit.slice(1) + 's' };
+    }
+  }
+
+  // Build candidate pool for the two non-Projects slots
+  var pool = [];
+  if (found)        pool.push({ pri: 10, v: found.v,  l: found.l });
+  if (complete > 0) pool.push({ pri:  8, v: complete,  l: 'Complete' });
+  if (accCount > 0) pool.push({ pri:  6, v: accCount,  l: 'Wins' });
+  if (inProg > 0)   pool.push({ pri:  3, v: inProg,    l: 'In Progress' });
+  // Fallbacks so we always have two
+  if (pool.length < 2) pool.push({ pri: 1, v: accCount > 0 ? accCount : total, l: 'Highlights' });
+  if (pool.length < 2) pool.push({ pri: 0, v: total, l: 'Active' });
+
+  pool.sort(function(a, b){ return b.pri - a.pri; });
+  return [{ v: total, l: 'Projects' }, pool[0], pool[1]];
+}
+
+// ============================================================
+//  DASHBOARD GENERATOR
+// ============================================================
+function generateDashboard() {
+  var primary = d.colors.primary;
+  var secondary = d.colors.secondary;
+  var accent = d.colors.accent;
+  var inProgBg = rgba(primary, 0.12);
+
+  var nm = d.name || d.rawQ1.split(',')[0].trim() || 'Your Name';
+  var role = d.role || '';
+  var org = d.org || '';
+
+  var css =
+    '*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }\n' +
+    'body { font-family: "General Sans", -apple-system, sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }\n' +
+    '.hero { background: ' + primary + '; padding: 56px 32px 48px; position: relative; overflow: hidden; border-radius: 0 0 20px 20px; }\n' +
+    '.hc { position: absolute; inset: 0; pointer-events: none; width: 100%; height: 100%; }\n' +
+    '.hi { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }\n' +
+    '.ho { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 16px; }\n' +
+    '.hn { font-size: clamp(2rem,5vw,3.2rem); font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 6px; }\n' +
+    '.hr { font-size: 1.05rem; color: rgba(255,255,255,0.82); margin-bottom: 6px; }\n' +
+    '.hp { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-bottom: 0; }\n' +
+    '.content { max-width: 900px; margin: 0 auto; padding: 48px 32px 80px; }\n' +
+    '.sec { margin-bottom: 56px; }\n' +
+    '.secl { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }\n' +
+    '.pip { width: 3px; height: 18px; background: ' + accent + '; border-radius: 2px; flex-shrink: 0; }\n' +
+    '.sect { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: ' + accent + '; }\n' +
+    '.pg { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }\n' +
+    '.pc { background: #fff; border: 1px solid #e8e6e0; border-radius: 14px; padding: 22px; }\n' +
+    '.pc.wide { grid-column: 1 / -1; }\n' +
+    '.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; margin-bottom: 10px; }\n' +
+    '.bc { background: #E1F5EE; color: #085041; }\n' +
+    '.bi { background: ' + inProgBg + '; color: ' + primary + '; }\n' +
+    '.bp { background: #FAEEDA; color: #633806; }\n' +
+    '.pn { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }\n' +
+    '.pd { font-size: 0.88rem; color: #444; line-height: 1.55; margin-bottom: 10px; }\n' +
+    '.pi { font-size: 0.85rem; color: #555; line-height: 1.5; padding-top: 10px; border-top: 1px solid #f0eeea; margin-top: 6px; }\n' +
+    '.ph { font-size: 0.82rem; color: #666; line-height: 1.5; margin-top: 8px; font-style: italic; }\n' +
+    '.al { display: flex; flex-direction: column; gap: 12px; }\n' +
+    '.ac { background: #fff; border: 1px solid #e8e6e0; border-radius: 14px; padding: 20px 22px; }\n' +
+    '.at { font-size: 0.92rem; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }\n' +
+    '.ab { font-size: 0.88rem; color: #444; line-height: 1.6; }\n' +
+    '.sg { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }\n' +
+    '.sc { background: #fff; border: 1px solid #e8e6e0; border-radius: 14px; padding: 20px 22px; }\n' +
+    '.st2 { font-size: 0.88rem; font-weight: 700; color: ' + accent + '; margin-bottom: 8px; }\n' +
+    '.sb { font-size: 0.86rem; color: #444; line-height: 1.55; }\n' +
+    '.cl { background: ' + primary + '; border-radius: 14px; padding: 32px; text-align: center; }\n' +
+    '.ct { font-size: 1rem; color: rgba(255,255,255,0.9); line-height: 1.7; }\n' +
+    '.cn { font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.65); margin-top: 12px; text-transform: uppercase; letter-spacing: 0.08em; }\n' +
+    '@media (max-width: 600px) { .hero { padding: 36px 20px 32px; } .content { padding: 36px 20px 56px; } .pg, .sg { grid-template-columns: 1fr; } .pc.wide { grid-column: 1; } }';
+
+  return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
+    '<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+    '<title>' + esc(nm) + ' — Value Dashboard</title>\n' +
+    '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600;700&display=swap">\n' +
+    '<style>\n' + css + '\n</style>\n</head>\n<body>\n\n' +
+
+    '<div class="hero">\n' +
+    '<svg class="hc" viewBox="0 0 900 320" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">\n' +
+    '<circle cx="780" cy="60" r="210" stroke="rgba(255,255,255,0.08)" stroke-width="60" fill="none"/>\n' +
+    '<circle cx="820" cy="140" r="150" stroke="rgba(255,255,255,0.07)" stroke-width="44" fill="none"/>\n' +
+    '<circle cx="80" cy="280" r="170" stroke="rgba(255,255,255,0.06)" stroke-width="52" fill="none"/>\n' +
+    '<circle cx="40" cy="80" r="110" stroke="rgba(255,255,255,0.05)" stroke-width="36" fill="none"/>\n' +
+    '</svg>\n' +
+    '<div class="hi">\n' +
+    '<div class="ho">' + esc(org || 'Portfolio') + '</div>\n' +
+    '<div class="hn">' + esc(nm) + '</div>\n' +
+    '<div class="hr">' + esc(role) + '</div>\n' +
+    '<div class="hp">' + esc(d.timePeriod) + '</div>\n' +
+    '</div>\n</div>\n\n' +
+
+    '<div class="content">\n\n' +
+    '<div class="sec">\n<div class="secl"><div class="pip"></div><div class="sect">Active Projects</div></div>\n<div class="pg">' + buildProjGrid(inProgBg) + '</div>\n</div>\n\n' +
+    '<div class="sec">\n<div class="secl"><div class="pip"></div><div class="sect">Key Accomplishments</div></div>\n<div class="al">' + buildAcc() + '</div>\n</div>\n\n' +
+    '<div class="sec">\n<div class="secl"><div class="pip"></div><div class="sect">What Stands Out</div></div>\n<div class="sg">' + buildSO() + '</div>\n</div>\n\n' +
+    '<div class="cl">\n<div class="ct">Thanks for stopping by. I\'m proud of what I\'ve built and excited about where this work is going.</div>\n<div class="cn">' + esc(nm) + '</div>\n</div>\n\n' +
+    '</div>\n</body>\n</html>';
+}
+
+function stripStatus(text) {
+  if (!text) return text;
+  return text.replace(/[,.]?\s*\b(complete|completed|done|finished|in\s+progress|in-progress|planning)\b\s*[.!]?\s*$/i, '').trim();
+}
+
+function buildProjGrid(inProgBg) {
+  var projs = d.projects, count = projs.length;
+  if (count === 0) return '';
+  var wideIdx = count === 1 ? 0 : (count % 2 !== 0 ? (projs.findIndex ? projs.findIndex(function(p) { return p.status === 'Complete'; }) : -1) : -1);
+  if (wideIdx === -1 && count % 2 !== 0) wideIdx = 0;
+  var ordered = projs.slice();
+  if (wideIdx > 0) { var w = ordered.splice(wideIdx, 1)[0]; ordered.unshift(w); wideIdx = 0; }
+  return ordered.map(function(proj, i) {
+    var isWide = i === 0 && wideIdx >= 0;
+    var bcls = proj.status === 'Complete' ? 'bc' : (proj.status === 'Planning' ? 'bp' : 'bi');
+    var hurdle = proj.hurdle ? '<div class="ph">Navigated: ' + esc(polish(proj.hurdle)) + '</div>' : '';
+    return '<div class="pc' + (isWide ? ' wide' : '') + '"><span class="badge ' + bcls + '">' + esc(proj.status) + '</span><div class="pn">' + esc(proj.name) + '</div><div class="pd">' + esc(polish(stripStatus(proj.descRaw))) + '</div><div class="pi">' + esc(polish(proj.impact)) + '</div>' + hurdle + '</div>';
+  }).join('');
+}
+
+function buildAcc() {
+  var cards = [];
+  if (d.acc1) {
+    var body = d.acc1;
+    if (d.acc1Why && d.acc1Why.toLowerCase() !== 'no' && d.acc1Why.length > 3) body += ' ' + d.acc1Why;
+    cards.push({ t: 'Biggest Win', b: polish(body) });
+  }
+  if (d.acc2 && d.acc2.toLowerCase() !== 'no' && d.acc2.toLowerCase() !== 'none' && d.acc2.length > 5) { var p2 = polish(d.acc2); if (p2.length >= 25) cards.push({ t: 'Also Worth Noting', b: p2 }); }
+  if (d.acc3 && d.acc3.toLowerCase() !== 'no' && d.acc3.toLowerCase() !== 'none' && d.acc3.length > 5) { var p3 = polish(d.acc3); if (p3.length >= 25) cards.push({ t: 'Supporting Others', b: p3 }); }
+  if (d.generalHurdle && d.generalHurdle.length > 10) cards.push({ t: 'Problem-Solving Under Pressure', b: polish(d.generalHurdle) });
+  d.extras.forEach(function(extra, i) {
+    if (extra && extra.length > 5) cards.push({ t: 'Additional Context', b: polish(extra) });
+  });
+  d.projects.forEach(function(p) {
+    if (cards.length < 8 && p.impact && p.impact.length > 20) cards.push({ t: p.name + ': Impact', b: polish(p.impact) });
+  });
+  return cards.slice(0, 10).map(function(c) {
+    return '<div class="ac"><div class="at">' + esc(c.t) + '</div><div class="ab">' + esc(c.b) + '</div></div>';
+  }).join('');
+}
+
+function buildSO() {
+  var cards = [];
+  if (d.stand1 && d.stand1.length > 3) { var ps1 = polish(d.stand1); if (ps1.length >= 25) cards.push({ t: 'Reputation', b: ps1 }); }
+  if (d.stand2 && d.stand2.length > 3 && d.stand2.toLowerCase() !== 'no' && d.stand2.toLowerCase() !== 'none') { var ps2 = polish(d.stand2); if (ps2.length >= 25) cards.push({ t: 'Above and Beyond', b: ps2 }); }
+  if (d.voice && d.voice.length > 10) cards.push({ t: 'In Their Own Words', b: polish(d.voice) });
+  if (cards.length < 4 && d.acc1) { var cdBody = d.acc1; if (d.acc1Why && d.acc1Why.toLowerCase() !== 'no' && d.acc1Why.length > 3) cdBody += ' ' + d.acc1Why; cards.push({ t: 'Consistent Delivery', b: polish(cdBody) }); }
+  while (cards.length < 4) cards.push({ t: 'Dependable', b: 'Brings consistency and genuine care to every project, regardless of scope.' });
+  return cards.slice(0, 4).map(function(c) {
+    return '<div class="sc"><div class="st2">' + esc(c.t) + '</div><div class="sb">' + esc(c.b) + '</div></div>';
+  }).join('');
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+bot("Hi! I'm the Personal Value Dashboard Builder.\n\nThis tool walks you through a short series of questions and puts together a clean, shareable dashboard capturing your work, wins, and what makes you stand out. It's useful for performance reviews, promotion conversations, or just keeping a record of what you've built.\n\nA quick heads-up before we start: this is a demo artifact, not active AI. It runs on scripted logic, so it's focused and intentional, think of it as a smart form, not a conversation. There's no live AI model behind it, and its responses are limited.\nThis was built by Lauren Stainback as part of her L&D portfolio. If you're interested in the full AI-enabled version of this tool, reach out to Lauren directly at https://www.linkedin.com/in/lauren-stainback-/ or lstainback@icloud.com\n\nReady?");
+</script>
+</body>
+</html>
